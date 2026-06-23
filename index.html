@@ -1,68 +1,414 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>EcoWatch — Community Pollution Reporter</title>
-<link rel="stylesheet" href="styles.css" />
-<!-- Make sure to replace the stylesheet link with your local 'styles.css' if hosting locally -->
-<link rel="stylesheet" href="[cdn.jsdelivr.net](https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css)" />
-</head>
-<body>
-<div id="app">
+// ══════════════════════════════
+// NAVIGATION
+// ══════════════════════════════
+const screens = ['home','reports','new','notifs','profile','success','detail','settings'];
+let navigationHistory = ['home'];
 
-<!-- SIDEBAR -->
-<aside id="sidebar">
-  <div class="logo" onclick="goTo('home')">
-    <i class="ti ti-leaf" aria-hidden="true"></i>
-    <div>EcoWatch<small>Community Pollution Reporter</small></div>
-  </div>
-  <div class="user-card" onclick="goTo('profile')">
-    <div class="s-avatar"><i class="ti ti-user"></i></div>
-    <div>
-      <div class="s-name">Jake Montecillo</div>
-      <div class="s-loc">📍 Cogon, Bogo City Cebu</div>
-    </div>
-  </div>
-  <nav class="s-nav">
-    <button class="s-btn active" data-screen="home" onclick="goTo('home',this)"><i class="ti ti-home"></i> Home</button>
-    <button class="s-btn" data-screen="reports" onclick="goTo('reports',this)"><i class="ti ti-layout-grid"></i> My Reports</button>
-    <button class="s-btn" data-screen="new" onclick="goTo('new',this)"><i class="ti ti-plus"></i> New Report</button>
-    <button class="s-btn" data-screen="notifs" onclick="goTo('notifs',this)"><i class="ti ti-bell"></i> Notifications</button>
-    <button class="s-btn" data-screen="profile" onclick="goTo('profile',this)"><i class="ti ti-user"></i> Profile</button>
-  </nav>
-  <div class="s-foot">EcoWatch v1.0 · Bogo City, Cebu</div>
-</aside>
+function goTo(id, sideBtn) {
+  if (navigationHistory[navigationHistory.length - 1] !== id) {
+    navigationHistory.push(id);
+  }
+  
+  screens.forEach(s => {
+    const el = document.getElementById('sc-'+s);
+    if(el) el.classList.remove('active');
+  });
+  
+  const target = document.getElementById('sc-'+id);
+  if(target) target.classList.add('active');
 
-<!-- MAIN -->
-<div id="main">
+  document.querySelectorAll('.s-btn').forEach(b => {
+    b.classList.remove('active');
+    if (b.dataset.screen === id) b.classList.add('active');
+  });
 
-<!-- ══════════════════════════════
-     SCREEN: HOME
-══════════════════════════════ -->
-<div class="screen active" id="sc-home">
-  <!-- ... your static content for this screen ... -->
-</div>
-<!-- ... other screens as static HTML ... -->
-<!-- Repeat for each screen, removing all JS-dependent attributes or event handlers unless they are static HTML -->
-<!-- Example: -->
-<div class="screen" id="sc-reports">
-  <!-- ... -->
-</div>
-<!-- etc. -->
+  document.querySelectorAll('.bot-nav .b-btn').forEach(b => {
+    b.classList.remove('active');
+    if (b.dataset.screen === id) b.classList.add('active');
+  });
+}
 
-</div><!-- /main -->
-</div><!-- /app -->
+function goBack() {
+  navigationHistory.pop();
+  const previousScreen = navigationHistory[navigationHistory.length - 1] || 'home';
+  goTo(previousScreen);
+}
 
-<!-- MODAL & TOAST (Unchanged, keep as static HTML if you wish) -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-icon" id="modal-icon">ℹ️</div>
-    <div class="modal-title" id="modal-title">Title</div>
-    <div class="modal-text" id="modal-text">Message text goes here.</div>
-    <button class="modal-btn" onclick="closeModal()">OK</button>
-  </div>
-</div>
-<div class="toast" id="toast">Message</div>
-</body>
-</html>
+// ══════════════════════════════
+// REPORT FORM
+// ══════════════════════════════
+let selectedPollutionType = null;
+let selectedImpact = null;
+
+function togglePill(btn) {
+  if (btn.dataset.value === 'more') {
+    showMoreTypes();
+    return;
+  }
+  document.querySelectorAll('#pollution-types .pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  selectedPollutionType = btn.dataset.value;
+  validateForm();
+}
+
+function toggleImpact(btn) {
+  document.querySelectorAll('#impact-btns .impact-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedImpact = btn.dataset.value;
+  validateForm();
+}
+
+function validateForm() {
+  const location = document.getElementById('location-inp').value.trim();
+  const submitBtn = document.getElementById('submit-btn');
+  
+  if (selectedPollutionType && selectedImpact && location) {
+    submitBtn.disabled = false;
+  } else {
+    submitBtn.disabled = true;
+  }
+}
+
+function showMoreTypes() {
+  showModal('types', 'More Pollution Types', 'Additional types:\n\n• Thermal Pollution\n• Radioactive Pollution\n• Plastic Pollution\n• Agricultural Pollution\n• Visual Pollution');
+}
+
+function useCurrentLocation() {
+  showToast('📍 Getting your location...');
+  setTimeout(() => {
+    document.getElementById('location-inp').value = 'Bgry. Sagong Siang, Caloocan';
+    showToast('✓ Location set');
+    validateForm();
+  }, 1000);
+}
+
+function uploadPhoto() {
+  showToast('📷 Photo upload coming soon!');
+}
+
+function submitReport() {
+  if (!selectedPollutionType || !selectedImpact) {
+    showToast('⚠️ Please fill all required fields');
+    return;
+  }
+  
+  const location = document.getElementById('location-inp').value.trim();
+  if (!location) {
+    showToast('⚠️ Please enter a location');
+    return;
+  }
+  
+  goTo('success');
+  
+  selectedPollutionType = null;
+  selectedImpact = null;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.impact-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.form-inp').forEach(i => i.value = '');
+  
+  updateStats();
+}
+
+function updateStats() {
+  const pending = parseInt(document.getElementById('home-pending').textContent) + 1;
+  document.getElementById('home-pending').textContent = pending;
+  document.getElementById('stat-pending').textContent = pending + 2;
+  document.getElementById('stat-total').textContent = parseInt(document.getElementById('stat-total').textContent) + 1;
+}
+
+// ══════════════════════════════
+// REPORTS FILTERING & SORTING
+// ══════════════════════════════
+function filterReports(q) {
+  const cards = document.querySelectorAll('#reports-list .r-card');
+  cards.forEach(c => {
+    const text = c.innerText.toLowerCase();
+    c.style.display = text.includes(q.toLowerCase()) ? 'flex' : 'none';
+  });
+}
+
+function filterReportsByStatus(status) {
+  const cards = document.querySelectorAll('#reports-list .r-card');
+  cards.forEach(c => {
+    if (status === 'all' || c.dataset.status === status) {
+      c.style.display = 'flex';
+    } else {
+      c.style.display = 'none';
+    }
+  });
+  showToast(`Showing ${status === 'all' ? 'all' : status} reports`);
+}
+
+function filterByStatus(status) {
+  goTo('reports');
+  setTimeout(() => filterReportsByStatus(status), 100);
+}
+
+function toggleSortMenu() {
+  showToast('Sort options: Newest, Oldest, Status');
+}
+
+// ══════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════
+function filterNotif(status, btn) {
+  document.querySelectorAll('.filter-row .f-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#notif-list .notif-item').forEach(item => {
+    if (status === 'all' || item.dataset.status === status) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+function showNotifOptions() {
+  showModal('notif', 'Options', 'Mark as read\nDelete notification\nTurn off notifications for this type');
+}
+
+// ══════════════════════════════
+// REPORT DETAIL
+// ══════════════════════════════
+const reportData = [
+  {
+    type: 'Water Pollution',
+    icon: '💧',
+    iconBg: '#e3f2fd',
+    status: 'pending',
+    badge: 'Pending',
+    badgeClass: 'b-pending',
+    location: 'Blk 2, Bgry. Sagong Siang, Caloocan',
+    impact: 'Medium',
+    time: '6 hours ago',
+    desc: 'Industrial waste discharge observed in the river. The water has turned murky with visible oil slicks on the surface.',
+    timeline: [
+      { icon: '📝', text: 'Report submitted', time: 'June 16, 2026 · 4:30 AM' }
+    ]
+  },
+  {
+    type: 'Land Pollution',
+    icon: '🌴',
+    iconBg: '#e8f5e9',
+    status: 'progress',
+    badge: 'Progress',
+    badgeClass: 'b-progress',
+    location: 'Blk 2, Bgry. Sagong Siang, Caloocan',
+    impact: 'Medium',
+    time: '2 hours ago',
+    desc: 'Illegal dumping site discovered with construction debris and household waste piling up.',
+    timeline: [
+      { icon: '📝', text: 'Report submitted', time: 'June 16, 2026 · 8:30 AM' },
+      { icon: '👀', text: 'Under review', time: 'June 16, 2026 · 9:00 AM' },
+      { icon: '🔧', text: 'Team dispatched', time: 'June 16, 2026 · 10:00 AM', active: true }
+    ]
+  },
+  {
+    type: 'Land Pollution',
+    icon: '🌴',
+    iconBg: '#e8f5e9',
+    status: 'resolved',
+    badge: 'Resolved',
+    badgeClass: 'b-resolved',
+    location: 'Blk 2, Bgry. Sagong Siang, Caloocan',
+    impact: 'Medium',
+    time: '1 day ago',
+    desc: 'Construction debris blocking drainage system has been cleared and properly disposed.',
+    timeline: [
+      { icon: '📝', text: 'Report submitted', time: 'June 14, 2026 · 2:30 PM' },
+      { icon: '👀', text: 'Under review', time: 'June 14, 2026 · 4:15 PM' },
+      { icon: '🔧', text: 'Team dispatched', time: 'June 15, 2026 · 9:00 AM' },
+      { icon: '✅', text: 'Issue resolved', time: 'June 15, 2026 · 4:00 PM', active: true }
+    ]
+  },
+  {
+    type: 'Air Pollution',
+    icon: '💨',
+    iconBg: '#fff8e1',
+    status: 'pending',
+    badge: 'Pending',
+    badgeClass: 'b-pending',
+    location: 'Blk 2, Bgry. Sagong Siang, Caloocan',
+    impact: 'High',
+    time: '1 day ago',
+    desc: 'Factory emissions causing thick smoke and unpleasant odor in the residential area.',
+    timeline: [
+      { icon: '📝', text: 'Report submitted', time: 'June 15, 2026 · 10:30 AM' }
+    ]
+  },
+  {
+    type: 'Water Pollution',
+    icon: '💧',
+    iconBg: '#e3f2fd',
+    status: 'resolved',
+    badge: 'Resolved',
+    badgeClass: 'b-resolved',
+    location: 'Blk 2, Bgry. Sagong Siang, Caloocan',
+    impact: 'Low',
+    time: '2 days ago',
+    desc: 'Minor oil spill in the river has been contained and cleaned up.',
+    timeline: [
+      { icon: '📝', text: 'Report submitted', time: 'June 13, 2026 · 8:00 AM' },
+      { icon: '👀', text: 'Under review', time: 'June 13, 2026 · 9:30 AM' },
+      { icon: '🔧', text: 'Cleanup initiated', time: 'June 13, 2026 · 2:00 PM' },
+      { icon: '✅', text: 'Issue resolved', time: 'June 14, 2026 · 11:00 AM', active: true }
+    ]
+  }
+];
+
+function showReportDetail(index) {
+  const report = reportData[index] || reportData[0];
+  
+  document.getElementById('detail-title').textContent = report.type;
+  document.getElementById('detail-icon').textContent = report.icon;
+  document.getElementById('detail-icon').style.background = report.iconBg;
+  document.getElementById('detail-badge').textContent = report.badge;
+  document.getElementById('detail-badge').className = 'badge detail-badge ' + report.badgeClass;
+  document.getElementById('detail-location').textContent = report.location;
+  document.getElementById('detail-impact').textContent = report.impact;
+  document.getElementById('detail-time').textContent = report.time;
+  document.getElementById('detail-desc').textContent = report.desc;
+  
+  let timelineHTML = '';
+  report.timeline.forEach((item, i) => {
+    timelineHTML += `
+      <div class="timeline-item">
+        <div class="timeline-dot" ${item.active ? 'style="border-color:#2563eb;"' : ''}>${item.icon}</div>
+        <div>
+          <div class="timeline-text" ${item.active ? 'style="font-weight:600;color:#2563eb;"' : ''}>${item.text}</div>
+          <div class="timeline-time">${item.time}</div>
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById('detail-timeline').innerHTML = timelineHTML;
+  
+  goTo('detail');
+}
+
+function showReportOptions() {
+  showModal('options', 'Report Options', 'Edit Report\nDelete Report\nShare Report\nDownload PDF');
+}
+
+function shareReport() {
+  if (navigator.share) {
+    navigator.share({
+      title: 'EcoWatch Report',
+      text: 'Check out this pollution report on EcoWatch',
+      url: window.location.href
+    });
+  } else {
+    showToast('📋 Report link copied to clipboard!');
+  }
+}
+
+// ══════════════════════════════
+// MAP FUNCTIONS
+// ══════════════════════════════
+function locateUser() {
+  showToast('📍 Finding your location...');
+  setTimeout(() => {
+    showToast('✓ Location found: Cogon, Bogo City');
+  }, 1500);
+}
+
+// ══════════════════════════════
+// PROFILE FUNCTIONS
+// ══════════════════════════════
+function editAvatar() {
+  showToast('📷 Avatar editing coming soon!');
+}
+
+function showAchievement(title, desc) {
+  showModal('achievement', title, desc);
+}
+
+function confirmLogout() {
+  if (confirm('Are you sure you want to log out?')) {
+    showToast('👋 Logged out successfully');
+    setTimeout(() => goTo('home'), 1000);
+  }
+}
+
+function confirmDeleteAccount() {
+  if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+    showToast('Account deletion requested');
+  }
+}
+
+// ══════════════════════════════
+// SETTINGS FUNCTIONS
+// ══════════════════════════════
+function toggleSwitch(el) {
+  el.classList.toggle('active');
+  const setting = el.id.replace('toggle-', '');
+  const state = el.classList.contains('active') ? 'enabled' : 'disabled';
+  showToast(`${setting.charAt(0).toUpperCase() + setting.slice(1)} ${state}`);
+}
+
+function showLanguageOptions() {
+  showModal('language', 'Select Language', 'English (Current)\nFilipino\nCebuano\nTagalog');
+}
+
+// ══════════════════════════════
+// MODAL & TOAST
+// ══════════════════════════════
+function showModal(type, title, text) {
+  const icons = {
+    success: '✅',
+    error: '❌',
+    warning: '⚠️',
+    info: 'ℹ️',
+    achievement: '🏆',
+    help: '❓',
+    about: '📱',
+    types: '📋',
+    notif: '⚙️',
+    options: '⚙️',
+    language: '🌐',
+    edit: '✏️',
+    password: '🔐'
+  };
+  
+  document.getElementById('modal-icon').textContent = icons[type] || 'ℹ️';
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-text').textContent = text;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+}
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════
+// INITIALIZATION
+// ══════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('location-inp')?.addEventListener('input', validateForm);
+  
+  const submitBtn = document.getElementById('submit-btn');
+  if (submitBtn) submitBtn.disabled = true;
+  
+  const hour = new Date().getHours();
+  let greeting = 'Good morning';
+  if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+  else if (hour >= 17) greeting = 'Good evening';
+  
+  const greetingEl = document.querySelector('.g-header div div:first-child');
+  if (greetingEl && greetingEl.textContent.includes('morning')) {
+    greetingEl.textContent = greeting + ',';
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal();
+  }
+});
