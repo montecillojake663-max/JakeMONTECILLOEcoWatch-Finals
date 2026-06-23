@@ -1,281 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoWatch — Community Pollution Reporter</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EcoWatch — Community Pollution Reporter</title>
+<link rel="stylesheet" href="styles.css" />
+<!-- Make sure to replace the stylesheet link with your local 'styles.css' if hosting locally -->
+<link rel="stylesheet" href="[cdn.jsdelivr.net](https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css)" />
 </head>
 <body>
 <div id="app">
 
-    <aside id="sidebar">
-        <div class="logo" onclick="goTo('home')">
-            <i class="ti ti-leaf" aria-hidden="true"></i>
-            <div>EcoWatch<small>Community Pollution Reporter</small></div>
-        </div>
-        <div class="user-card" onclick="goTo('profile')">
-            <div class="s-avatar"><i class="ti ti-user"></i></div>
-            <div>
-                <div class="s-name">Jake Montecillo</div>
-                <div class="s-loc">📍 Cogon, Bogo City Cebu</div>
-            </div>
-        </div>
-        <nav class="s-nav">
-            <button class="s-btn active" data-screen="home" onclick="goTo('home',this)"><i class="ti ti-home"></i> Home</button>
-            <button class="s-btn" data-screen="reports" onclick="goTo('reports',this)"><i class="ti ti-layout-grid"></i> My Reports</button>
-            <button class="s-btn" data-screen="new" onclick="goTo('new',this)"><i class="ti ti-plus"></i> New Report</button>
-            <button class="s-btn" data-screen="notifs" onclick="goTo('notifs',this)"><i class="ti ti-bell"></i> Notifications</button>
-            <button class="s-btn" data-screen="profile" onclick="goTo('profile',this)"><i class="ti ti-user"></i> Profile</button>
-        </nav>
-        <div class="s-foot">EcoWatch v1.0 · Bogo City, Cebu</div>
-    </aside>
-
-    <div id="main">
-
-        <div class="screen active" id="sc-home">
-            <div class="g-header">
-                <div class="g-header-row">
-                    <div>
-                        <div style="font-size:13px;opacity:.75;">Good morning,</div>
-                        <div style="font-size:18px;font-weight:600;">Jake</div>
-                    </div>
-                    <div class="g-icons">
-                        <i class="ti ti-bell" onclick="goTo('notifs')" title="Notifications"></i>
-                        <i class="ti ti-user-circle" onclick="goTo('profile')" title="Profile"></i>
-                    </div>
-                </div>
-                <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border-radius:10px;padding:10px 16px;margin-top:14px;font-size:14px;cursor:pointer;max-width:350px;" onclick="showToast('📍 Current location: Bgry. Sagong Siang, Caloocan')">
-                    📍 Bgry. Sagong Siang, Caloocan
-                </div>
-            </div>
-
-            <div class="map-box" onclick="showToast('Map view - Tap pins to see report details')">
-                <div class="map-grid"></div>
-                <div class="map-loc">📍 Cogon, Bogo City</div>
-                <div class="pin" style="top:38%;left:28%;background:#e53935;" onclick="event.stopPropagation();showReportDetail(0)" title="Pending Report"></div>
-                <div class="pin" style="top:55%;left:58%;background:#fb8c00;" onclick="event.stopPropagation();showReportDetail(1)" title="Reviewing Report"></div>
-                <div class="pin" style="top:25%;left:66%;background:#43a047;" onclick="event.stopPropagation();showReportDetail(2)" title="Resolved Report"></div>
-                <div class="pin" style="top:60%;left:38%;background:#fb8c00;" onclick="event.stopPropagation();showReportDetail(1)" title="Reviewing Report"></div>
-                <div class="map-legend">
-                    <span><span class="legend-dot" style="background:#e53935;"></span>Pending</span>
-                    <span><span class="legend-dot" style="background:#fb8c00;"></span>Reviewing</span>
-                    <span><span class="legend-dot" style="background:#43a047;"></span>Resolved</span>
-                </div>
-                <button class="map-locate" onclick="event.stopPropagation();locateUser()" title="Find my location"><i class="ti ti-current-location" style="font-size:18px;"></i></button>
-            </div>
-
-            <div class="stats-row">
-                <div class="stat-card" onclick="filterByStatus('pending')"><div class="stat-num amber" id="home-pending">1</div><div class="stat-lbl">Pending</div></div>
-                <div class="stat-card" onclick="filterByStatus('progress')"><div class="stat-num blue" id="home-reviewing">2</div><div class="stat-lbl">Reviewing</div></div>
-                <div class="stat-card" onclick="filterByStatus('resolved')"><div class="stat-num green" id="home-resolved">1</div><div class="stat-lbl">Resolved</div></div>
-            </div>
-
-            <div class="s-body" style="padding-top:8px;">
-                <div class="sec-row">
-                    <span class="sec-title">Recent Report</span>
-                    <button class="sec-link" onclick="goTo('reports')">See all</button>
-                </div>
-
-                <div class="r-card" onclick="showReportDetail(0)">
-                    <div class="r-icon" style="background:#e3f2fd;">💧</div>
-                    <div style="flex:1;">
-                        <div class="r-title">Water Pollution</div>
-                        <div class="r-sub">Industrial waste discharge</div>
-                        <div class="r-loc">📍 Blk 2, Bgry. Bagong Silang, Caloocan</div>
-                        <div class="r-sub">Impact Level: Medium</div>
-                    </div>
-                    <div class="r-meta">
-                        <span class="badge b-progress">Progress</span>
-                        <div class="r-time">2h ago</div>
-                    </div>
-                </div>
-
-                <div class="r-card" onclick="showReportDetail(1)">
-                    <div class="r-icon" style="background:#e3f2fd;">💧</div>
-                    <div style="flex:1;">
-                        <div class="r-title">Water Pollution</div>
-                        <div class="r-sub">Sewage overflow</div>
-                        <div class="r-loc">📍 Blk 2, Bgry. Bagong Silang, Caloocan</div>
-                        <div class="r-sub">Impact Level: Low</div>
-                    </div>
-                    <div class="r-meta">
-                        <span class="badge b-progress">Progress</span>
-                        <div class="r-time">2h ago</div>
-                    </div>
-                </div>
-
-                <div class="r-card" onclick="showReportDetail(2)">
-                    <div class="r-icon" style="background:#e8f5e9;">🌴</div>
-                    <div style="flex:1;">
-                        <div class="r-title">Land Pollution</div>
-                        <div class="r-sub">Illegal dumping site</div>
-                        <div class="r-loc">📍 Blk 2, Bgry. Sagong Siang, Caloocan</div>
-                        <div class="r-sub">Impact Level: Medium</div>
-                    </div>
-                    <div class="r-meta">
-                        <span class="badge b-pending">Pending</span>
-                        <div class="r-time">6h ago</div>
-                    </div>
-                </div>
-            </div>
-
-            <nav class="bot-nav">
-                <button class="b-btn active" data-screen="home" onclick="goTo('home')"><i class="ti ti-home"></i><span>Home</span></button>
-                <button class="b-btn" data-screen="reports" onclick="goTo('reports')"><i class="ti ti-layout-grid"></i><span>Reports</span></button>
-                <button class="b-fab" onclick="goTo('new')" title="New Report"><i class="ti ti-plus"></i></button>
-                <button class="b-btn" data-screen="notifs" onclick="goTo('notifs')"><i class="ti ti-bell"></i><span>Notif</span></button>
-                <button class="b-btn" data-screen="profile" onclick="goTo('profile')"><i class="ti ti-user"></i><span>Profile</span></button>
-            </nav>
-        </div>
-
-        <div class="screen" id="sc-reports">
-            <div class="g-header">
-                <div class="g-title">My Reports</div>
-            </div>
-            <div class="search-bar">
-                <div class="search-wrap">
-                    <i class="ti ti-search"></i>
-                    <input class="search-inp" id="search-inp" type="text" placeholder="Search reports..." oninput="filterReports(this.value)">
-                </div>
-            </div>
-
-            <div class="s-body">
-                <div class="this-month">This Month</div>
-                <div class="stats-4">
-                    <div class="stat4" onclick="filterReportsByStatus('all')"><div class="stat4-num" id="stat-total">8</div><div class="stat4-lbl">Total</div></div>
-                    <div class="stat4" onclick="filterReportsByStatus('pending')"><div class="stat4-num" style="color:#d97706;" id="stat-pending">3</div><div class="stat4-lbl">Pending</div></div>
-                    <div class="stat4" onclick="filterReportsByStatus('resolved')"><div class="stat4-num" style="color:var(--eco-mid);" id="stat-resolved">3</div><div class="stat4-lbl">Resolved</div></div>
-                    <div class="stat4" onclick="filterReportsByStatus('progress')"><div class="stat4-num" style="color:#2563eb;" id="stat-progress">1</div><div class="stat4-lbl">Progress</div></div>
-                </div>
-
-                <div class="sec-row">
-                    <span class="sec-title">Recent Submissions</span>
-                    <button class="sec-link" onclick="toggleSortMenu()">Sort by ▾</button>
-                </div>
-
-                <div id="reports-list">
-                    <div class="r-card" data-type="water" data-status="pending" data-time="6" onclick="showReportDetail(0)">
-                        <div class="r-icon" style="background:#e3f2fd;">💧</div>
-                        <div style="flex:1;">
-                            <div class="r-title">Water Pollution</div>
-                            <div class="r-sub">Industrial waste discharge</div>
-                            <div class="r-loc">📍 Blk 2, Bgry. Sagong Siang, Caloocan</div>
-                            <div class="r-sub">Impact Level: Medium</div>
-                        </div>
-                        <div class="r-meta"><span class="badge b-pending">Pending</span><div class="r-time">6h ago</div></div>
-                    </div>
-                    <div class="r-card" data-type="land" data-status="progress" data-time="2" onclick="showReportDetail(1)">
-                        <div class="r-icon" style="background:#e8f5e9;">🌴</div>
-                        <div style="flex:1;">
-                            <div class="r-title">Land Pollution</div>
-                            <div class="r-sub">Illegal dumping site</div>
-                            <div class="r-loc">📍 Blk 2, Bgry. Sagong Siang, Caloocan</div>
-                            <div class="r-sub">Impact Level: Medium</div>
-                        </div>
-                        <div class="r-meta"><span class="badge b-progress">Progress</span><div class="r-time">2h ago</div></div>
-                    </div>
-                    <div class="r-card" data-type="land" data-status="resolved" data-time="24" onclick="showReportDetail(2)">
-                        <div class="r-icon" style="background:#e8f5e9;">🌴</div>
-                        <div style="flex:1;">
-                            <div class="r-title">Land Pollution</div>
-                            <div class="r-sub">Construction debris</div>
-                            <div class="r-loc">📍 Blk 2, Bgry. Sagong Siang, Caloocan</div>
-                            <div class="r-sub">Impact Level: Medium</div>
-                        </div>
-                        <div class="r-meta"><span class="badge b-resolved">Resolved</span><div class="r-time">1d ago</div></div>
-                    </div>
-                    <div class="r-card" data-type="air" data-status="pending" data-time="24" onclick="showReportDetail(3)">
-                        <div class="r-icon" style="background:#fff8e1;">💨</div>
-                        <div style="flex:1;">
-                            <div class="r-title">Air Pollution</div>
-                            <div class="r-sub">Factory emissions</div>
-                            <div class="r-loc">📍 Blk 2, Bgry. Sagong Siang, Caloocan</div>
-                            <div class="r-sub">Impact Level: High</div>
-                        </div>
-                        <div class="r-meta"><span class="badge b-pending">Pending</span><div class="r-time">1d ago</div></div>
-                    </div>
-                    <div class="r-card" data-type="water" data-status="resolved" data-time="48" onclick="showReportDetail(4)">
-                        <div class="r-icon" style="background:#e3f2fd;">💧</div>
-                        <div style="flex:1;">
-                            <div class="r-title">Water Pollution</div>
-                            <div class="r-sub">Oil spill in river</div>
-                            <div class="r-loc">📍 Blk 2, Bgry. Sagong Siang, Caloocan</div>
-                            <div class="r-sub">Impact Level: Low</div>
-                        </div>
-                        <div class="r-meta"><span class="badge b-resolved">Resolved</span><div class="r-time">2d ago</div></div>
-                    </div>
-                </div>
-            </div>
-
-            <nav class="bot-nav">
-                <button class="b-btn" data-screen="home" onclick="goTo('home')"><i class="ti ti-home"></i><span>Home</span></button>
-                <button class="b-btn active" data-screen="reports" onclick="goTo('reports')"><i class="ti ti-layout-grid"></i><span>Reports</span></button>
-                <button class="b-fab" onclick="goTo('new')" title="New Report"><i class="ti ti-plus"></i></button>
-                <button class="b-btn" data-screen="notifs" onclick="goTo('notifs')"><i class="ti ti-bell"></i><span>Notif</span></button>
-                <button class="b-btn" data-screen="profile" onclick="goTo('profile')"><i class="ti ti-user"></i><span>Profile</span></button>
-            </nav>
-        </div>
-
-        <div class="screen" id="sc-new">
-            <div class="nr-header">
-                <button class="nr-back" onclick="goTo('home')" title="Go back"><i class="ti ti-arrow-left"></i></button>
-                <div class="g-title" style="text-align:center;">Report Pollution</div>
-            </div>
-
-            <div class="nr-body">
-                <div class="form-container">
-                    <label class="form-label">Type of pollution</label>
-                    <div class="pill-group" id="pollution-types">
-                        <button class="pill" onclick="togglePill(this)" data-value="water">Water Pollution</button>
-                        <button class="pill" onclick="togglePill(this)" data-value="noise">Noise Pollution</button>
-                        <button class="pill" onclick="togglePill(this)" data-value="air">Air Pollution</button>
-                        <button class="pill" onclick="togglePill(this)" data-value="light">Light Pollution</button>
-                        <button class="pill" onclick="togglePill(this)" data-value="land">Land Pollution</button>
-                        <button class="pill" onclick="showMoreTypes()" data-value="more">+ More</button>
-                    </div>
-
-                    <label class="form-label">Impact</label>
-                    <div class="impact-group" id="impact-btns">
-                        <button class="impact-btn" onclick="toggleImpact(this)" data-value="low">Low</button>
-                        <button class="impact-btn" onclick="toggleImpact(this)" data-value="medium">Medium</button>
-                        <button class="impact-btn" onclick="toggleImpact(this)" data-value="high">High</button>
-                    </div>
-
-                    <label class="form-label">Location</label>
-                    <div style="position:relative;max-width:500px;">
-                        <input class="form-inp" type="text" id="location-inp" placeholder="Enter location or use current..." style="padding-right:48px;">
-                        <button onclick="useCurrentLocation()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--eco-mid);font-size:22px;" title="Use current location"><i class="ti ti-current-location"></i></button>
-                    </div>
-
-                    <label class="form-label">Description</label>
-                    <textarea class="form-inp" id="desc-inp" placeholder="Describe the pollution in detail..."></textarea>
-
-                    <label class="form-label">Add Photo (Optional)</label>
-                    <div style="border:2px dashed #ddd;border-radius:12px;padding:28px;text-align:center;margin-bottom:20px;cursor:pointer;transition:border-color .15s;max-width:500px;" onclick="uploadPhoto()" onmouseover="this.style.borderColor='var(--eco-mid)'" onmouseout="this.style.borderColor='#ddd'">
-                        <i class="ti ti-camera" style="font-size:40px;color:#aaa;"></i>
-                        <div style="font-size:14px;color:var(--text-sec);margin-top:10px;">Tap to add photo</div>
-                        <div id="photo-preview" style="margin-top:10px;display:none;"></div>
-                    </div>
-
-                    <button class="submit-btn" id="submit-btn" onclick="submitReport()">Submit Report</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="screen" id="sc-notifs">
-            <div class="g-header" style="padding-bottom:12px;">
-                <div class="g-title">Notifications</div>
-            </div>
-            <div class="filter-row">
-                <button class="f-btn active" onclick="filterNotif('all',this)">All</button>
-                <button class="f-btn" onclick="filterNotif('pending',this)">Pending</button>
-                <button class="f-btn" onclick="filterNotif('progress',this)">Progress</button>
-            </div>
-        </div>
-
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="logo" onclick="goTo('home')">
+    <i class="ti ti-leaf" aria-hidden="true"></i>
+    <div>EcoWatch<small>Community Pollution Reporter</small></div>
+  </div>
+  <div class="user-card" onclick="goTo('profile')">
+    <div class="s-avatar"><i class="ti ti-user"></i></div>
+    <div>
+      <div class="s-name">Jake Montecillo</div>
+      <div class="s-loc">📍 Cogon, Bogo City Cebu</div>
     </div>
+  </div>
+  <nav class="s-nav">
+    <button class="s-btn active" data-screen="home" onclick="goTo('home',this)"><i class="ti ti-home"></i> Home</button>
+    <button class="s-btn" data-screen="reports" onclick="goTo('reports',this)"><i class="ti ti-layout-grid"></i> My Reports</button>
+    <button class="s-btn" data-screen="new" onclick="goTo('new',this)"><i class="ti ti-plus"></i> New Report</button>
+    <button class="s-btn" data-screen="notifs" onclick="goTo('notifs',this)"><i class="ti ti-bell"></i> Notifications</button>
+    <button class="s-btn" data-screen="profile" onclick="goTo('profile',this)"><i class="ti ti-user"></i> Profile</button>
+  </nav>
+  <div class="s-foot">EcoWatch v1.0 · Bogo City, Cebu</div>
+</aside>
+
+<!-- MAIN -->
+<div id="main">
+
+<!-- ══════════════════════════════
+     SCREEN: HOME
+══════════════════════════════ -->
+<div class="screen active" id="sc-home">
+  <!-- ... your static content for this screen ... -->
 </div>
+<!-- ... other screens as static HTML ... -->
+<!-- Repeat for each screen, removing all JS-dependent attributes or event handlers unless they are static HTML -->
+<!-- Example: -->
+<div class="screen" id="sc-reports">
+  <!-- ... -->
+</div>
+<!-- etc. -->
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MODAL & TOAST (Unchanged, keep as static HTML if you wish) -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-icon" id="modal-icon">ℹ️</div>
+    <div class="modal-title" id="modal-title">Title</div>
+    <div class="modal-text" id="modal-text">Message text goes here.</div>
+    <button class="modal-btn" onclick="closeModal()">OK</button>
+  </div>
+</div>
+<div class="toast" id="toast">Message</div>
 </body>
 </html>
